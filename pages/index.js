@@ -1,6 +1,8 @@
 import * as React from "react";
 import { useMutation } from "react-query";
 import { Box, Button, Heading, Image, Input, Spinner } from "theme-ui";
+
+import { useLocalStorage } from "../components/useLocalStorage";
 import { Layout } from "../components/Layout";
 
 async function screenshotRequest(tweetUrl) {
@@ -15,6 +17,11 @@ async function screenshotRequest(tweetUrl) {
 function ScreenshotTaker() {
     const [tweetUrl, setTweetUrl] = React.useState("");
     const [screenshotUrl, setScreenshotUrl] = React.useState(null);
+    const [screenshotCount, setScreenshotCount] = useLocalStorage(
+        "twitshot.xyz-count",
+        "0"
+    );
+
     const [takeScreenshot, { isLoading }] = useMutation(screenshotRequest, {
         onSuccess: (data) => {
             setScreenshotUrl(data.url);
@@ -25,6 +32,7 @@ function ScreenshotTaker() {
         event.preventDefault();
 
         takeScreenshot(tweetUrl);
+        setScreenshotCount(Number(screenshotCount) + 1);
     }
 
     return (
@@ -52,7 +60,16 @@ function ScreenshotTaker() {
     );
 }
 
+function Paywall() {
+    return null;
+}
+
 export default function Home() {
+    const [screenshotCount, setScreenshotCount] = useLocalStorage(
+        "twitshot.xyz-count",
+        "0"
+    );
+
     return (
         <Layout title="twitshot.xyz">
             <Heading sx={{ fontSize: [3, 5, 7], textAlign: "center" }}>
@@ -62,7 +79,8 @@ export default function Home() {
                 screenshots of your tweets
             </Heading>
 
-            <ScreenshotTaker />
+            {/* TODO: block should happen on user action, not page load */}
+            {Number(screenshotCount) > 2 ? <Paywall /> : <ScreenshotTaker />}
         </Layout>
     );
 }
