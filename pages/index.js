@@ -107,7 +107,7 @@ function PayWall({ clientSecret }) {
 }
 
 export default function Home({ clientSecret }) {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isAuthorized, user } = useAuth();
     const [screenshotCount, setScreenshotCount] = useLocalStorage(
         "twitshot.xyz-count",
         "0"
@@ -125,7 +125,9 @@ export default function Home({ clientSecret }) {
             {/* TODO: block should happen on user action, not page load */}
             {Number(screenshotCount) > 2 && !isAuthenticated() ? (
                 <LoginWall />
-            ) : Number(screenshotCount) > 6 && isAuthenticated() ? (
+            ) : Number(screenshotCount) > 6 &&
+              isAuthenticated() &&
+              !isAuthorized("has_paid") ? (
                 <PayWall clientSecret={clientSecret} />
             ) : (
                 <ScreenshotTaker />

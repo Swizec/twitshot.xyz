@@ -23,6 +23,7 @@ export default function handler(req, res) {
         }
 
         console.log(event);
+        // TODO: add auth role to user
 
         return res.json({ received: true });
     } else {

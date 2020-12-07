@@ -21,6 +21,7 @@ function MyApp({ Component, pageProps }) {
                 params={{
                     clientID: "uBfbM4SvGcroXXZq1LKg86m7TDbnC4b2",
                     domain: "twitshotxyz.us.auth0.com",
+                    customPropertyNamespace: "https://twitshot.xyz",
                 }}
             />
 
