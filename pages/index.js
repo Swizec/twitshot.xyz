@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Button, Heading } from "theme-ui";
+import { Box, Button, Heading, Spinner } from "theme-ui";
 import Stripe from "stripe";
 
 import { useLocalStorage } from "../components/useLocalStorage";
@@ -7,7 +7,12 @@ import { Layout } from "../components/Layout";
 import { useAuth } from "react-use-auth";
 import { ScreenshotTaker } from "../components/ScreenshotTaker";
 import { loadStripe } from "@stripe/stripe-js";
-import { CardElement, Elements } from "@stripe/react-stripe-js";
+import {
+    CardElement,
+    Elements,
+    useElements,
+    useStripe,
+} from "@stripe/react-stripe-js";
 
 function LoginWall() {
     const { isAuthenticated, login, logout, user } = useAuth();
@@ -39,13 +44,64 @@ export async function getServerSideProps() {
     };
 }
 
+function CheckoutForm({ clientSecret }) {
+    const stripe = useStripe();
+    const elements = useElements();
+    const { user } = useAuth();
+    const [isLoading, setIsLoading] = React.useState(false);
+
+    async function handleSubmit(event) {
+        if (isLoading) return;
+
+        event.preventDefault();
+        setIsLoading(true);
+
+        const result = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: elements.getElement(CardElement),
+                billing_details: {
+                    name: user.nickname,
+                    email: user.email,
+                },
+            },
+        });
+
+        setIsLoading(false);
+
+        if (result.error) {
+            // Show error to your customer (e.g., insufficient funds)
+            console.log(result.error.message);
+        } else {
+            // The payment has been processed!
+            if (result.paymentIntent.status === "succeeded") {
+                alert("Thanks!");
+            }
+        }
+    }
+
+    return (
+        <Box
+            as="form"
+            sx={{ width: ["100%", "100%", 280], margin: "auto", pt: [3, 5, 7] }}
+            onSubmit={handleSubmit}
+        >
+            <Box sx={{ width: ["100%", "100%", 280], margin: "auto" }}>
+                <CardElement />
+            </Box>
+            <Button sx={{ mt: 3 }}>
+                {isLoading ? <Spinner color="white" /> : "Buy for $5 "}
+            </Button>
+        </Box>
+    );
+}
+
 function PayWall({ clientSecret }) {
     // TODO: should be env var
     const stripePromise = loadStripe("pk_5WyhDiasKtEhmWiYGeGLvHRqm5Fcn");
 
     return (
         <Elements stripe={stripePromise}>
-            <CardElement />
+            <CheckoutForm clientSecret={clientSecret} />
         </Elements>
     );
 }
