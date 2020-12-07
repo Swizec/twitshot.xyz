@@ -16,6 +16,8 @@ async function screenshotRequest(tweetUrl) {
 
 // https://twitter.com/KatieFujihara/status/1335796664527818752
 function ScreenshotTaker() {
+    const { user } = useAuth();
+
     const [tweetUrl, setTweetUrl] = React.useState("");
     const [screenshotUrl, setScreenshotUrl] = React.useState(null);
     const [screenshotCount, setScreenshotCount] = useLocalStorage(
@@ -42,6 +44,11 @@ function ScreenshotTaker() {
             sx={{ pt: [3, 5, 7], textAlign: "center" }}
             onSubmit={handleSubmit}
         >
+            {user ? (
+                <Heading sx={{ pb: 3 }}>
+                    Seen a good tweet, {user.nickname}?
+                </Heading>
+            ) : null}
             {isLoading ? (
                 <Spinner />
             ) : (
@@ -61,7 +68,7 @@ function ScreenshotTaker() {
     );
 }
 
-function Paywall() {
+function LoginWall() {
     const { isAuthenticated, login, logout, user } = useAuth();
 
     return (
@@ -77,6 +84,7 @@ function Paywall() {
 }
 
 export default function Home() {
+    const { isAuthenticated } = useAuth();
     const [screenshotCount, setScreenshotCount] = useLocalStorage(
         "twitshot.xyz-count",
         "0"
@@ -92,7 +100,11 @@ export default function Home() {
             </Heading>
 
             {/* TODO: block should happen on user action, not page load */}
-            {Number(screenshotCount) > 2 ? <Paywall /> : <ScreenshotTaker />}
+            {Number(screenshotCount) > 2 && !isAuthenticated() ? (
+                <LoginWall />
+            ) : (
+                <ScreenshotTaker />
+            )}
         </Layout>
     );
 }
