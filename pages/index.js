@@ -4,6 +4,7 @@ import { Box, Button, Heading, Image, Input, Spinner } from "theme-ui";
 
 import { useLocalStorage } from "../components/useLocalStorage";
 import { Layout } from "../components/Layout";
+import { useAuth } from "react-use-auth";
 
 async function screenshotRequest(tweetUrl) {
     const res = await fetch(
@@ -61,7 +62,18 @@ function ScreenshotTaker() {
 }
 
 function Paywall() {
-    return null;
+    const { isAuthenticated, login, logout, user } = useAuth();
+
+    return (
+        <Box sx={{ textAlign: "center", pt: [3, 5, 7] }}>
+            <Heading>You love TwitShot! Login to continue</Heading>
+            {!isAuthenticated() ? (
+                <Button onClick={login}>Login</Button>
+            ) : (
+                user.nickname
+            )}
+        </Box>
+    );
 }
 
 export default function Home() {

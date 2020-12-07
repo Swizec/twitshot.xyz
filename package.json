@@ -11,10 +11,13 @@
     "@mdx-js/loader": "^1.6.22",
     "@next/mdx": "^10.0.3",
     "@theme-ui/presets": "^0.3.4",
+    "auth0-js": "^9.14.0",
+    "netlify-identity-widget": "^1.9.1",
     "next": "10.0.3",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-query": "^2.26.4",
+    "react-use-auth": "^1.0.0",
     "react-use-localstorage": "^3.5.3",
     "theme-ui": "^0.3.4"
   }
